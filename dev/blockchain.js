@@ -105,5 +105,50 @@ Blockchain.prototype.chainIsValid = function(blockchain) {
     return true;
 }
 
+Blockchain.prototype.getBlock = function(blockHash) {
+    const filteredBlock = this.chain.filter(block => block.hash === blockHash);
+
+    return filteredBlock.length ? filteredBlock[0] : null
+}
+
+Blockchain.prototype.getTransaction = function(transactionId) {
+    return this.chain.reduce((acc, block) => {
+        let transaction = block.transactions.find(trans => trans.transactionId === transactionId);
+        if (transaction) {
+            acc = {transaction, block};
+        }
+        return acc
+    }, {
+        transaction: null,
+        block: null
+    });
+}
+
+Blockchain.prototype.getAddressData = function(address) {
+    // Get all transaction data of address
+    const addressData = this.chain.reduce((acc, block) => {
+        // Get transactions of address in current block if any
+        const blockAddressTransactions = block.transactions.filter(trans => trans.sender === address || trans.recipient === address);
+        // Calculate the balance of address in current block
+        const blockAddressBalance = blockAddressTransactions.reduce((a, blockAddressTransaction) => {
+            if (blockAddressTransaction.sender == address){
+                a -= blockAddressTransaction.amount;
+            } else if (blockAddressTransaction.recipient == address) {
+                a += blockAddressTransaction.amount
+            }
+            return a
+        }, 0)
+        // Update and return the balance and transactions data of address
+        return {
+            addressTransactions: [...acc.addressTransactions, ...blockAddressTransactions],
+            addressBalance: acc.addressBalance + blockAddressBalance
+        }
+    }, {
+        addressTransactions: [],
+        addressBalance: 0
+    });
+
+    return addressData;
+}
 
 module.exports = Blockchain;

@@ -49,7 +49,7 @@ app.post('/transaction/broadcast', async function(req, res) {
 });
 
 /**
- * Fetching this endpoind will mine the new block with data of current pending transactions.
+ * Fetching this endpoint will mine the new block with data of current pending transactions.
  */
 app.get('/mine', async function(req, res) {
     const lastBlock = bitcoin.getLastBlock();
@@ -203,6 +203,27 @@ app.get('/consensus', async function(req, res) {
         note: "This chain has been replaced",
         chain: bitcoin.chain
     });
+});
+
+app.get('/block/:blockHash', function(req, res) {
+    const blockHash = req.params.blockHash;
+    const block = bitcoin.getBlock(blockHash);
+
+    return res.json({block});
+});
+
+app.get('/transaction/:transactionId', function(req, res) {
+    const transactionId = req.params.transactionId;
+    const transactionData = bitcoin.getTransaction(transactionId);
+
+    return res.json(transactionData);
+});
+
+app.get('/address/:address', function(req, res){
+    const address = req.params.address;
+    const addressData = bitcoin.getAddressData(address);
+
+    return res.json({addressData})
 });
 
 app.listen(port, function(){
