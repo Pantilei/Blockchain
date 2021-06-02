@@ -5,6 +5,8 @@ import {
   Theme,
   useTheme,
 } from "@material-ui/core/styles";
+import { useHistory } from "react-router-dom";
+import { routes } from "../routes";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -20,15 +22,27 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Menu() {
   const classes = useStyles();
+  const history = useHistory();
   const theme = useTheme();
   console.log("Theme: ", theme);
-  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    console.log("clicked: ", event.currentTarget.innerHTML);
+  const handleClick = (menuName: string) => {
+    history.push(menuName);
   };
 
   return (
     <div className={classes.root}>
-      <div className={classes.menuButton} onClick={handleClick}>
+      {routes
+        .filter((route) => route.menuName)
+        .map((route, index) => (
+          <div
+            className={classes.menuButton}
+            onClick={() => handleClick(route.path)}
+            key={index}
+          >
+            {route.menuName}
+          </div>
+        ))}
+      {/* <div className={classes.menuButton} onClick={handleClick}>
         BlockChain
       </div>
       <div className={classes.menuButton} onClick={handleClick}>
@@ -39,7 +53,7 @@ export default function Menu() {
       </div>
       <div className={classes.menuButton} onClick={handleClick}>
         Network
-      </div>
+      </div> */}
     </div>
   );
 }
