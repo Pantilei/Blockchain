@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   createStyles,
   makeStyles,
   Theme,
   useTheme,
 } from "@material-ui/core/styles";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { routes } from "../routes";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -20,13 +20,20 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function Menu() {
+const Menu: React.FC = () => {
+  const [clickedMenuPath, setClickedMenuPath] = useState<string>();
+  const currentPath = useLocation();
   const classes = useStyles();
   const history = useHistory();
   const theme = useTheme();
-  console.log("Theme: ", theme);
-  const handleClick = (menuName: string) => {
-    history.push(menuName);
+
+  useEffect(() => {
+    setClickedMenuPath(currentPath.pathname);
+  }, []);
+
+  const handleClick = (path: string) => {
+    setClickedMenuPath(path);
+    history.push(path);
   };
 
   return (
@@ -38,22 +45,18 @@ export default function Menu() {
             className={classes.menuButton}
             onClick={() => handleClick(route.path)}
             key={index}
+            style={{
+              color:
+                route.path == clickedMenuPath
+                  ? theme.palette.text.primary
+                  : theme.palette.text.secondary,
+            }}
           >
             {route.menuName}
           </div>
         ))}
-      {/* <div className={classes.menuButton} onClick={handleClick}>
-        BlockChain
-      </div>
-      <div className={classes.menuButton} onClick={handleClick}>
-        Blocks
-      </div>
-      <div className={classes.menuButton} onClick={handleClick}>
-        Transactions
-      </div>
-      <div className={classes.menuButton} onClick={handleClick}>
-        Network
-      </div> */}
     </div>
   );
-}
+};
+
+export default Menu;
