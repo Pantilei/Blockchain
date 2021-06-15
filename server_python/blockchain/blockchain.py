@@ -1,3 +1,4 @@
+from typing import List
 from server_python.blockchain.block import Block
 
 
@@ -7,7 +8,7 @@ class Blockchain:
     """
 
     def __init__(self) -> None:
-        self.chain = [Block.genesis()]
+        self.chain: List[Block] = [Block.genesis()]
 
     def add_block(self, data):
         last_block = self.chain[-1]
