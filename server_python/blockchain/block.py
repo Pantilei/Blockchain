@@ -82,11 +82,51 @@ class Block:
 
         return 1
 
+    @staticmethod
+    def is_valid_block(last_block: 'Block', block: 'Block') -> None:
+        """
+        Validate the block by enforcing the following rules:
+         - The block must contain the proper last hash reference
+         - The proof of work requirement must be met
+         - The block difficulty must only adjust by 1
+         - The block hash must be valid combination of block fields
+        Args:
+            last_block (Block): Last block instance
+            block (Block): Current block instance
+
+        Raises:
+            Exception: When the block is not valid
+        """
+
+        if block.last_hash != last_block.hash:
+            raise Exception('The block must have proper last hash reference!')
+
+        if hex_to_binary(block.hash)[0:block.difficulty] != '0' * block.difficulty:
+            raise Exception('The proof of work requirement is not met!')
+
+        if abs(last_block.difficulty - block.difficulty) > 1:
+            raise Exception('The block difficulty must only adjusted by 1!')
+
+        reconstructed_hash = crypto_hash(
+            block.timestamp,
+            block.last_hash,
+            block.data,
+            block.difficulty,
+            block.nonce
+        )
+        if reconstructed_hash != block.hash:
+            raise Exception(
+                'The block hash must be a valid combination of block fields!')
+
 
 def main():
     genesis_block = Block.genesis()
-    block = Block.mine_block(genesis_block, "random data")
-    print(block)
+    bad_block = Block.mine_block(genesis_block, "random data")
+    bad_block.last_hash = "danger"
+    try:
+        Block.is_valid_block(genesis_block, bad_block)
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
