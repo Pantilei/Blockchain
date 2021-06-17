@@ -105,7 +105,7 @@ class Block:
             raise Exception('The proof of work requirement is not met!')
 
         if abs(last_block.difficulty - block.difficulty) > 1:
-            raise Exception('The block difficulty must only adjusted by 1!')
+            raise Exception('The block difficulty must be only adjusted by 1!')
 
         reconstructed_hash = crypto_hash(
             block.timestamp,
