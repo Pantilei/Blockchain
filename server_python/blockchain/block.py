@@ -38,6 +38,9 @@ class Block:
             f"      nonce: {self.nonce}) \n"
         )
 
+    def __eq__(self, o: object) -> bool:
+        return self.__dict__ == o.__dict__
+
     @staticmethod
     def mine_block(last_block: 'Block', data: str) -> 'Block':
         """

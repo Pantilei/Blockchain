@@ -1,3 +1,4 @@
+from server_python.tests.blockchain.test_block import last_block
 from typing import List
 from server_python.blockchain.block import Block
 
@@ -16,6 +17,26 @@ class Blockchain:
 
     def __repr__(self) -> str:
         return f"Blockchain: {self.chain}"
+
+    def is_valid_chain(chain: List[Block]) -> None:
+        """Validate the incomming chain
+            Enforce the following rules of blockchain:
+             - The chain must start with genesis block
+             - Blocks must be formatted correctly
+
+        Args:
+            chain (Blockchain): Chain of blocks
+
+        Raises:
+            Exception: If chain is not valid
+        """
+        if chain[0] != Block.genesis():
+            raise Exception('The genesis block must be valid!')
+
+        for i in range(1, len(chain)):
+            last_block = chain[i-1]
+            block = chain[i]
+            Block.is_valid_block(last_block, block)
 
 
 if __name__ == "__main__":
