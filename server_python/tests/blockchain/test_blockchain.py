@@ -38,3 +38,26 @@ def test_is_valid_chain_bad_genesis(blockchain_tree_blocks: 'Blockchain'):
 
     with pytest.raises(Exception, match="The genesis block must be valid!"):
         Blockchain.is_valid_chain(blockchain_tree_blocks.chain)
+
+
+def test_replace_chain(blockchain_tree_blocks: 'Blockchain'):
+
+    blockchain = Blockchain()
+    blockchain.replace_chain(blockchain_tree_blocks.chain)
+
+    assert blockchain.chain == blockchain_tree_blocks.chain
+
+
+def test_replace_chain_not_longer(blockchain_tree_blocks: 'Blockchain'):
+    blockchain = Blockchain()
+
+    with pytest.raises(Exception, match="The incomming chain must be longer! Cannot replace."):
+        blockchain_tree_blocks.replace_chain(blockchain.chain)
+
+
+def test_raplace_chain_bad_chain(blockchain_tree_blocks: 'Blockchain'):
+
+    blockchain = Blockchain()
+    blockchain_tree_blocks.chain[1].hash = "bad_hash"
+    with pytest.raises(Exception, match=f"Cannot replace, the incomming chain is invalid"):
+        blockchain.replace_chain(blockchain_tree_blocks.chain)
