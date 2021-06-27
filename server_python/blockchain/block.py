@@ -121,6 +121,14 @@ class Block:
             raise Exception(
                 'The block hash must be a valid combination of block fields!')
 
+    def to_json(self) -> dict:
+        """Create the dictianary represantation of block
+
+        Returns:
+            dict: Data of Block
+        """
+        return self.__dict__
+
 
 def main():
     genesis_block = Block.genesis()

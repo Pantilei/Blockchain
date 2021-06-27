@@ -11,7 +11,7 @@ class Blockchain:
     def __init__(self) -> None:
         self.chain: List[Block] = [Block.genesis()]
 
-    def add_block(self, data):
+    def add_block(self, data) -> None:
         last_block = self.chain[-1]
         self.chain.append(Block.mine_block(last_block, data))
 
@@ -61,6 +61,14 @@ class Blockchain:
             last_block = chain[i-1]
             block = chain[i]
             Block.is_valid_block(last_block, block)
+
+    def to_json(self):
+        """Create the dictionary represantation of block
+
+        Returns:
+            dict: Return the dictionary represantation of block
+        """
+        return [block.to_json() for block in self.chain]
 
 
 if __name__ == "__main__":
