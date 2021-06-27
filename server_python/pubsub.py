@@ -58,6 +58,7 @@ class PubSub:
         await queue.consume(self.on_message)
 
     async def on_message(self, message: IncomingMessage):
+        print("Message received!!!")
         async with message.process():
             print("[x] %r" % message.body)
 

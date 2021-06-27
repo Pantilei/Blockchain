@@ -1,13 +1,23 @@
 from fastapi import FastAPI
+from random import randint
 from server_python.blockchain.blockchain import Blockchain
+from server_python.pubsub import PubSub
 
+PORT = randint(5000, 6000)
 
 app = FastAPI()
 blockchain = Blockchain()
+pub_sub = PubSub('amqp://guest:guest@localhost:5672/%2F', 'block')
+
+
+@app.on_event('startup')
+async def startup():
+    await pub_sub.listen()
 
 
 @app.get('/')
 async def route_root():
+    await pub_sub.publish(b'Hello test!')
     return {
         'data': "Hello Darling!"
     }
