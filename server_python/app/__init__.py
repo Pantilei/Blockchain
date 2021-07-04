@@ -1,17 +1,18 @@
+from server_python.config import RABBITMQ_URL
 from fastapi import FastAPI
-from random import randint
 from server_python.blockchain.blockchain import Blockchain
 from server_python.pubsub import PubSub
 
-PORT = randint(5000, 6000)
 
-app = FastAPI()
-blockchain = Blockchain()
-pub_sub = PubSub('amqp://guest:guest@localhost:5672/%2F', 'block')
+app: FastAPI = FastAPI()
+blockchain: Blockchain = Blockchain()
+pub_sub: PubSub = PubSub(RABBITMQ_URL + '/%2F', 'block')
 
 
 @app.on_event('startup')
-async def startup():
+async def startup() -> None:
+    """Create and listen the channel queue
+    """
     await pub_sub.listen()
 
 
@@ -29,8 +30,10 @@ async def route_blockchain():
 
 
 @app.get('/blockchain/mine')
-def route_blockchain_mine():
+async def route_blockchain_mine():
     trasaction_data = 'stubbed_transactions'
     blockchain.add_block(trasaction_data)
+    block = blockchain.chain[-1]
+    await pub_sub.broadcast_block(block)
 
-    return blockchain.chain[-1].to_json()
+    return block.to_json()

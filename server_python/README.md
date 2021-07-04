@@ -19,7 +19,8 @@ python3 -m pytest server_python/tests
 ```
 
 **Run the application and API**
+Make sure to activate the virtual env
 
 ```
-uvicorn server_python.app:app --reload
+python3 -m server_python.main
 ```
