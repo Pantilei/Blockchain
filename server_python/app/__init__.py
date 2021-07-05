@@ -1,12 +1,32 @@
+from server_python.tests.blockchain.test_block import block
+import aiohttp
+import sys
 from server_python.config import RABBITMQ_URL
 from fastapi import FastAPI
 from server_python.blockchain.blockchain import Blockchain
 from server_python.pubsub import PubSub
 
+ROOT_PORT = 5000
+PORT: int = int(sys.argv[1] if len(sys.argv) > 1 else 5000)
 
 app: FastAPI = FastAPI()
 blockchain: Blockchain = Blockchain()
-pub_sub: PubSub = PubSub(RABBITMQ_URL + '/%2F', 'block')
+pub_sub: PubSub = PubSub(RABBITMQ_URL + '/%2F', 'block', blockchain)
+
+
+@app.on_event('startup')
+async def get_and_update_local_chain():
+    if PORT == ROOT_PORT:
+        return
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'http://localhost:{ROOT_PORT}/blockchain') as response:
+            result = await response.json()
+            result_blockchain = Blockchain.from_dict(result)
+            try:
+                blockchain.replace_chain(result_blockchain.chain)
+                print(f"\n Successfully syncronized the localchain!")
+            except Exception as ex:
+                print(f"\n Error synchronizing: {ex}")
 
 
 @app.on_event('startup')
@@ -26,7 +46,7 @@ async def route_root():
 
 @app.get('/blockchain')
 async def route_blockchain():
-    return blockchain.to_json()
+    return blockchain.to_dict()
 
 
 @app.get('/blockchain/mine')
@@ -36,4 +56,4 @@ async def route_blockchain_mine():
     block = blockchain.chain[-1]
     await pub_sub.broadcast_block(block)
 
-    return block.to_json()
+    return block.to_dict()

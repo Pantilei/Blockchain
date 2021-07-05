@@ -121,13 +121,22 @@ class Block:
             raise Exception(
                 'The block hash must be a valid combination of block fields!')
 
-    def to_json(self) -> dict:
+    def to_dict(self) -> dict:
         """Create the dictianary represantation of block
 
         Returns:
             dict: Data of Block
         """
         return self.__dict__
+
+    @staticmethod
+    def from_dict(block_dict: dict) -> 'Block':
+        """Create block instance from dict data
+
+        Returns:
+            [Block]: New block
+        """
+        return Block(**block_dict)
 
 
 def main():

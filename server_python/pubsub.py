@@ -1,3 +1,5 @@
+import json
+from server_python.blockchain.blockchain import Blockchain
 from server_python.blockchain.block import Block
 from typing import ByteString
 import asyncio
@@ -15,13 +17,15 @@ class PubSub:
     Publisher broadcasts messages on those channels and subscriber receives those messages on channels.
     """
 
-    def __init__(self, rabbitmq_url: str, exchange_name: str) -> None:
+    def __init__(self, rabbitmq_url: str, exchange_name: str, blockchain: Blockchain) -> None:
         """Initialize Pub/Sub instance
 
         Args:
             rabbitmq_url (str): RabbitMQ url
             exchange_name (str): Exchange name in channel
+            blockchain (Blockchain): Blockchain of node
         """
+        self.blockchain = blockchain
         self.rabbitmq_url = rabbitmq_url
         self.exchange_name = exchange_name
         self.exchange_type = ExchangeType.FANOUT
@@ -91,15 +95,27 @@ class PubSub:
             message (IncomingMessage): Incomming message
         """
         async with message.process():
-            print("Message received!!!: ", message.body)
+            print(message.body)
+            # print("Exchange: ", message.exchange)
+            if message.exchange == "block":
+                block_data: dict = json.loads(message.body.decode("UTF-8"))
+                print("Block data: ", block_data)
+                block: Block = Block.from_dict(block_data)
+                potential_chain: list = self.blockchain.chain[:]
+                potential_chain.append(block)
+                try:
+                    self.blockchain.replace_chain(potential_chain)
+                    print("\n Successefully replaced the local chain!")
+                except Exception as ex:
+                    print(f"\n Did not replace the chain: {ex}")
 
     async def broadcast_block(self, block: Block) -> None:
         """Broadcasts the block data to all nodes in network
 
         Args:
-            block (Block): BLock instance
+            block (Block): Block instance
         """
-        await self.publish(str(block.to_json()).encode('UTF-8'))
+        await self.publish(json.dumps(block.to_dict()).encode('UTF-8'))
 
 
 async def main():

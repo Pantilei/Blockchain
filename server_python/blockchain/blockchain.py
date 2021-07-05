@@ -62,13 +62,27 @@ class Blockchain:
             block = chain[i]
             Block.is_valid_block(last_block, block)
 
-    def to_json(self):
-        """Create the dictionary represantation of block
+    def to_dict(self) -> list:
+        """Create the dictionary represantation of chain of blocks
 
         Returns:
-            dict: Return the dictionary represantation of block
+            list: Return the dictionary represantation of chain of blocks
         """
-        return [block.to_json() for block in self.chain]
+        return [block.to_dict() for block in self.chain]
+
+    @staticmethod
+    def from_dict(chain: list) -> 'Blockchain':
+        """Create Blockchain instance from chain data
+
+        Args:
+            chain: List of block data
+        Returns:
+            Blockchain: New blockchain instance
+        """
+        blockchain = Blockchain()
+        blockchain.chain = [Block.from_dict(block) for block in chain]
+
+        return blockchain
 
 
 if __name__ == "__main__":
