@@ -10,3 +10,4 @@ MINE_RATE = 4 * SECONDS
 
 RABBITMQ_URL = os.environ.get('RABBITMQ_URL')
 HOST = os.environ.get('HOST')
+STARTING_BALANCE = os.environ.get('STARTING_BALANCE')
