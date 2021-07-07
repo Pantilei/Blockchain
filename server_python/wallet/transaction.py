@@ -6,6 +6,8 @@ from server_python.wallet.wallet import Wallet
 class Transaction:
     """
     Document of an exchange in currency from a sender to one or more recipient.
+    Transaction input must have the same amount as transaction output(What enters to system should leave it.)
+    Ex: When you have 3 coins and you send 1 coin to Alice, you receive back 2 coins as change.
     """
 
     def __init__(self, sender_wallet: Wallet, recipient: str, amount: float) -> None:
