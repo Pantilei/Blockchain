@@ -54,6 +54,31 @@ class Transaction:
             'signature': sender_wallet.sign(output)
         }
 
+    def update(self, sender_wallet: Wallet, recipient: str, amount: float) -> None:
+        """
+        Update the transaction inctance. 
+        Rule: Only one transaction per sender per block
+
+        Args:
+            sender_wallet (Wallet): Wallet of sender
+            recipient (str): Recipient address
+            amount (float): Amount sent
+
+        Raises:
+            Exception: When amount exceeds the balance of wallet
+        """
+        if amount > self.output[sender_wallet.address]:
+            raise Exception('Amount exceeds balance')
+
+        if recipient in self.output:
+            self.output[recipient] += amount
+        else:
+            self.output[recipient] = amount
+
+        self.output[sender_wallet.address] -= amount
+
+        self.input = self.create_input(sender_wallet, self.output)
+
 
 def main():
     transaction = Transaction(Wallet(), 'lk34ljnlsf_recipient', 15)
