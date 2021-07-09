@@ -68,7 +68,7 @@ class Transaction:
             Exception: When amount exceeds the balance of wallet
         """
         if amount > self.output[sender_wallet.address]:
-            raise Exception('Amount exceeds balance')
+            raise Exception('Amount exceeds balance!')
 
         if recipient in self.output:
             self.output[recipient] += amount
@@ -78,6 +78,23 @@ class Transaction:
         self.output[sender_wallet.address] -= amount
 
         self.input = self.create_input(sender_wallet, self.output)
+
+    @staticmethod
+    def is_valid_transaction(transaction: 'Transaction') -> None:
+        """Validate the transaction
+
+        Args:
+            transaction (Transaction): Transaction instance
+
+        Raises:
+            Exception: If output doesn't balance input
+            Exception: If signature is invalid
+        """
+        if sum(transaction.output.values()) != transaction.input['amount']:
+            raise Exception("Invalid transaction output values!")
+
+        if not Wallet.verify(transaction.input["public_key"], transaction.output, transaction.input["signature"]):
+            raise Exception('Invalid signature!')
 
 
 def main():
