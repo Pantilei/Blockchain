@@ -1,16 +1,20 @@
-from server_python.tests.blockchain.test_block import block
+from server_python.app.schemas.trasaction import TransactionSchema
 import aiohttp
 import sys
 from server_python.config import RABBITMQ_URL
 from fastapi import FastAPI
 from server_python.blockchain.blockchain import Blockchain
 from server_python.pubsub import PubSub
+from server_python.wallet.transaction import Transaction
+from server_python.wallet.wallet import Wallet
 
 ROOT_PORT = 5000
 PORT: int = int(sys.argv[1] if len(sys.argv) > 1 else 5000)
 
 app: FastAPI = FastAPI()
 blockchain: Blockchain = Blockchain()
+wallet: Wallet = Wallet()
+
 pub_sub: PubSub = PubSub(RABBITMQ_URL + '/%2F', 'block', blockchain)
 
 
@@ -57,3 +61,11 @@ async def route_blockchain_mine():
     await pub_sub.broadcast_block(block)
 
     return block.to_dict()
+
+
+@app.post('/wallet/transact')
+async def route_wallet_transaction(transaction_body: TransactionSchema):
+    transaction: Transaction = Transaction(
+        wallet, transaction_body.recipient, transaction_body.amount)
+
+    return transaction.to_dict()
